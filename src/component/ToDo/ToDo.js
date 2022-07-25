@@ -1,4 +1,4 @@
-import { async } from '@firebase/util';
+
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -7,11 +7,30 @@ const ToDo = () => {
     const [items, setItems] = useState([]);
     // fetch data from database
     useEffect(() => {
-        fetch('http://localhost:5000/items')
-            .then(res => res.json())
-            .then(data => setItems(data));
-    }, [])
-    console.log(items);
+        const getListItems = async () =>{
+              try{
+                const res = await axios.get('http://localhost:5000/items')
+                setItems(res.data);
+              }catch(err){
+                console.log(err);
+              }
+        }
+        getListItems();
+    }, [items]);
+    
+    // delete items 
+
+    const deleteItems = async(id)=>{
+        try{
+                 const res = await axios.delete(`http://localhost:5000/items/${id}`);
+                 const newItems = items.filter(item=> item._id !== id);
+                 setItems(newItems);
+
+        }catch(err){
+            console.log(err);
+        }
+    }
+    
 
 
     //    create function for post data 
@@ -40,10 +59,10 @@ const ToDo = () => {
                 </form>
                 <div className='mt-5 flex flex-col gap-5 pb-5'>
                     {
-                        items.map(item => <div className='flex justify-evenly'>
+                        items?.map(item => <div className='flex justify-evenly'>
                             <p className='text-secondary text-xl font-bold'> {item.items} </p>
                             <button className='btn btn-primary'>Update</button>
-                            <button className='btn btn-success'>X</button>
+                            <button onClick={()=>deleteItems(item._id)} className='btn btn-success'>X</button>
                         </div>)
                     }
 
