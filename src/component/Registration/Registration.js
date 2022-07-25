@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
-import { Link } from "react-router-dom";
+import { Link , useNavigate} from "react-router-dom";
 import auth from '../../firebase.init';
-import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useCreateUserWithEmailAndPassword, useUpdateProfile } from 'react-firebase-hooks/auth';
 const Registration = () => {
 
     const [
@@ -10,18 +10,25 @@ const Registration = () => {
         loading,
         error,
     ] = useCreateUserWithEmailAndPassword(auth);
+    const [updateProfile, updating, error2] = useUpdateProfile(auth);
+
     const nameRef = useRef();
     const emailRef = useRef();
     const passwordRef = useRef();
-    const handleRegSubmit = e => {
+    const navigate = useNavigate();
+
+    const handleRegSubmit = async(e) => {
         e.preventDefault();
         const name = nameRef.current.value;
         const email = emailRef.current.value;
         const password = passwordRef.current.value;
-        createUserWithEmailAndPassword(email, password);
-        console.log(name, password, email);
+       await createUserWithEmailAndPassword(email, password);
+       await updateProfile({displayName:name});
+        
     }
-
+    if(user){
+        navigate ('/todo');
+    }
     return (
         <section>
             <div
